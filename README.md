@@ -1,3 +1,12 @@
+The purpose of this fork was to ensure compatibility between [ScanITD](https://github.com/ylab-hi/ScanITD) and [Varlociraptor](https://varlociraptor.github.io/landing/).
+
+To achieve this, the reference and alternate allele sequences were included in the output VCF. Additionally, the SVTYPE was modified from TDUP to INS.
+
+------
+
+Below the original readme:
+
+------
 
 # ScanITD
 [![Build Status](https://travis-ci.org/ylab-hi/ScanITD.svg?branch=master&status=passed)](https://travis-ci.org/ylab-hi/ScanITD)

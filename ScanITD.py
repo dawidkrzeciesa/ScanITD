@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 #-*- coding: utf-8 -*-
 #===============================================================================
+# the modifications of this script (original ScanITD https://github.com/ylab-hi/ScanITD)
+# can be found in this repository: https://github.com/dawidkrzeciesa/ScanITD
 #===============================================================================
 __version__ = 0.3
 
@@ -217,7 +219,7 @@ def vcf_header(output_prefix):
     header.append('##INFO=<ID=DP,Number=1,Type=Integer,Description="Total read depth at the locus">')
     header.append('##INFO=<ID=AO,Number=1,Type=Integer,Description="Alternate allele observations, with partial observations recorded fractionally">')
     header.append('##INFO=<ID=AB,Number=1,Type=Float,Description="Estimated allele frequency in the range (0,1], representing the ratio of reads showing the alternative allele to all reads">')
-    header.append('##INFO=<ID=SVTYPE,Number=1,Type=String,Description="The type of event, INS and TDUP.">')
+    header.append('##INFO=<ID=SVTYPE,Number=1,Type=String,Description="The type of event. The type was restricted to INS only to use Varlociraptor variant caller">')
     header.append('##INFO=<ID=SVLEN,Number=1,Type=Integer,Description="Difference in length between REF and ALT alleles">')
     header.append('##INFO=<ID=CHR2,Number=1,Type=String,Description="Chromosome for END coordinate in case of a translocation">')
     header.append('##INFO=<ID=END,Number=1,Type=Integer,Description="nd position of the structural variant">')
@@ -451,19 +453,26 @@ def itd_scan(input_bam, output_prefix, ao_cutoff, dp_cutoff, vaf_cutoff,
                         end = sorted_itd[0][0] + int(itd_length)
                         chr2 = col.reference_name
                         itd_length = itd_length
+                        
+                        # get ref and alt allele sequence
+                        itd_length = int(itd_id.split(',')[2])
+                        ref_allele_seq = str(genome_seq[col.reference_name][sorted_itd[0][0]])
+                        alt_allele_seq = str(genome_seq[col.reference_name][sorted_itd[0][0] : sorted_itd[0][0] + itd_length])
+                        
+                        # varlociraptor call the tandem duplication events if SVTYPE=INS, therefore SVTYPE was changed from TDUP to INS
                         vcf_field_info = 'NS=1;AO=' + str(ao) + ';DP=' + str(dp) + ';AB=' + \
-                            '{:.2g}'.format(vaf) + ';SVLEN=' + itd_length + ';SVTYPE=TDUP;SVMETHOD=ScanITD_ALN;CHR2=' + chr2 + ';END=' + str(end)
-
+                            '{:.2g}'.format(vaf) + ';SVLEN=' + str(itd_length) + ';SVTYPE=INS;SVMETHOD=ScanITD_ALN;CHR2=' + chr2 + ';END=' + str(end)
+                        
+                        # fetch ref and alt allele sequence
                         out_itd = col.reference_name + '\t' + \
                             str(sorted_itd[0][0] + 1) + \
-                            '\t.\t.\t<TDUP>\t.\t.\t' + vcf_field_info
+                            '\t.\t' + ref_allele_seq + '\t' + ref_allele_seq + alt_allele_seq + '\t.\t.\t' + vcf_field_info
                         if out_itd in itd_set:
                             continue
                         print(col.reference_name +
                               '\t' +
-                              str(sorted_itd[0][0] +
-                                  1) +
-                              '\t.\t.\t<TDUP>\t.\t.\t' +
+                              str(sorted_itd[0][0] + 1) +
+                              '\t.\t' + ref_allele_seq + '\t' + ref_allele_seq + alt_allele_seq + '\t.\t.\t' +
                               vcf_field_info +
                               '\t' +
                               vcf_field_gt, file=vcffile)
