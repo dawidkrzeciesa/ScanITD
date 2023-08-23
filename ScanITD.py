@@ -219,7 +219,7 @@ def vcf_header(output_prefix):
     header.append('##INFO=<ID=DP,Number=1,Type=Integer,Description="Total read depth at the locus">')
     header.append('##INFO=<ID=AO,Number=1,Type=Integer,Description="Alternate allele observations, with partial observations recorded fractionally">')
     header.append('##INFO=<ID=AB,Number=1,Type=Float,Description="Estimated allele frequency in the range (0,1], representing the ratio of reads showing the alternative allele to all reads">')
-    header.append('##INFO=<ID=SVTYPE,Number=1,Type=String,Description="The type of event. The type was restricted to INS only to use Varlociraptor variant caller">')
+    header.append('##INFO=<ID=SVTYPE,Number=1,Type=String,Description="The type of event. To use Varlociraptor variant caller the type was restricted to INS only">')
     header.append('##INFO=<ID=SVLEN,Number=1,Type=Integer,Description="Difference in length between REF and ALT alleles">')
     header.append('##INFO=<ID=CHR2,Number=1,Type=String,Description="Chromosome for END coordinate in case of a translocation">')
     header.append('##INFO=<ID=END,Number=1,Type=Integer,Description="nd position of the structural variant">')
@@ -354,7 +354,7 @@ def itd_scan(input_bam, output_prefix, ao_cutoff, dp_cutoff, vaf_cutoff,
 
     genome_seq = Fasta(fasta_file, sequence_always_upper=True, as_raw=True)
 
-    vcffile = open(output_prefix + '.itd.vcf', 'w')
+    vcffile = open(output_prefix + '.ScanITD.vcf', 'w')
     print(vcf_header(output_prefix), file=vcffile)
     vcf_field_gt = 'GT\t0/1'
     regions = []
